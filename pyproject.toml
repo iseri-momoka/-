@@ -65,10 +65,10 @@ pccm = "pccm.__main__:main"
 ground_filter_csf = "pccm.plugins.matlab.ground_filter_csf.algorithm:register"
 
 [project.urls]
-Homepage = "https://github.com/your-org/pccm"
-Documentation = "https://github.com/your-org/pccm/blob/main/docs/architecture.md"
-Source = "https://github.com/your-org/pccm"
-Changelog = "https://github.com/your-org/pccm/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/iseri-momoka/-"
+Documentation = "https://github.com/iseri-momoka/-/blob/master/docs/architecture.md"
+Source = "https://github.com/iseri-momoka/-"
+Changelog = "https://github.com/iseri-momoka/-/blob/master/CHANGELOG.md"
 
 # ---------------------------------------------------------------------------
 # Tool configuration
