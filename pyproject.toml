@@ -1,0 +1,191 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pccm"
+version = "0.1.0.dev0"
+description = "Point Cloud Compare & Manage — a Python desktop application for 3D point cloud processing"
+readme = "README.md"
+license = { text = "GPL-3.0-or-later" }
+requires-python = ">=3.11,<3.13"
+authors = [{ name = "PCCM Team" }]
+keywords = ["point-cloud", "3d", "registration", "open3d", "cloudcompare"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+
+# Runtime dependencies — locked to the versions in the architecture plan (§9.4).
+dependencies = [
+    "numpy>=2.0,<3",
+    "scipy>=1.13,<2",
+    "scikit-learn>=1.5,<2",
+    "open3d>=0.19,<0.20",
+    "PySide6>=6.7,<6.9",
+    "matplotlib>=3.9,<4",
+    "laspy>=2.5,<3",
+    "pye57>=0.4",
+    "plyfile>=1.1",
+    "shapely>=2.0",
+    "qtconsole>=5.5",
+    "blinker>=1.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-qt>=4.4",
+    "pytest-cov>=5",
+    "pytest-benchmark>=4",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "import-linter>=2",
+    "pre-commit>=4",
+    "pyinstaller>=6.10",
+    "types-requests",
+]
+plugin = [
+    # Placeholder for user-supplied plugin dependencies.
+]
+
+[project.scripts]
+pccm = "pccm.__main__:main"
+
+[project.entry-points."pccm.plugins"]
+# Each MATLAB port registers itself here so importlib.metadata can discover
+# it without manual path wiring. New ports append their entry below.
+ground_filter_csf = "pccm.plugins.matlab.ground_filter_csf.algorithm:register"
+
+[project.urls]
+Homepage = "https://github.com/your-org/pccm"
+Documentation = "https://github.com/your-org/pccm/blob/main/docs/architecture.md"
+Source = "https://github.com/your-org/pccm"
+Changelog = "https://github.com/your-org/pccm/blob/main/CHANGELOG.md"
+
+# ---------------------------------------------------------------------------
+# Tool configuration
+# ---------------------------------------------------------------------------
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["pccm*"]
+# Exclude the demo user plugin directory from the wheel; it is a runtime
+# drop-in folder and is intentionally empty at install time.
+exclude = ["pccm.plugins.user_plugins*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# A pragmatic, conservative rule set for an early-stage project.
+select = [
+    "E", "F", "W",      # pycodestyle + pyflakes
+    "I",                # isort
+    "B",                # bugbear
+    "UP",               # pyupgrade
+    "SIM",              # simplify
+    "RUF",              # ruff-native
+    "PT",               # pytest style
+    "TCH",              # type-checking imports
+    "N",                # pep8-naming
+]
+ignore = [
+    "E501",   # line length — handled by formatter
+    "B008",   # function calls in defaults (PySide6 heavily uses this)
+    "TCH002", # allow `from x import y` even if y is a type
+    "TCH003", # same
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["N802", "N803"]  # test functions legitimately use open3d/short names
+"src/pccm/gui/**" = ["B008"]       # PySide6 default-arg patterns
+"tools/**/*.py" = ["T201"]         # tools may use print
+
+[tool.ruff.lint.isort]
+known-first-party = ["pccm"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "src"
+strict = false
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+# Algorithm and core layers get stricter typing: they are the ones that
+# plugins depend on, so mistakes here cascade.
+module = ["pccm.core.*", "pccm.algorithms.*", "pccm.plugins.api"]
+strict = true
+
+[[tool.mypy.overrides]]
+# GUI uses a lot of Qt dynamic features; loosen it.
+module = ["pccm.gui.*"]
+disallow_incomplete_defs = false
+check_untyped_defs = false
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=pccm",
+    "--cov-report=term-missing",
+    "--cov-report=xml",
+]
+markers = [
+    "gui: tests that require a Qt event loop (deselect with '-m \"not gui\"')",
+    "slow: tests that take more than a few seconds",
+]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning:open3d.*",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.importlinter]
+root_package = "pccm"
+
+[[tool.importlinter.contracts]]
+name = "Core must not depend on GUI"
+type = "forbidden"
+source = ["pccm.core", "pccm.algorithms", "pccm.io", "pccm.spatial", "pccm.tools", "pccm.plugins"]
+forbidden = ["pccm.gui", "PySide6", "PyQt5", "PyQt6"]
+
+[[tool.importlinter.contracts]]
+name = "Algorithms must not import open3d.visualization"
+type = "forbidden"
+source = ["pccm.algorithms", "pccm.plugins"]
+forbidden = ["open3d.visualization"]
+
+[[tool.importlinter.contracts]]
+name = "Plugins only access the curated API"
+type = "forbidden"
+source = ["pccm.plugins.matlab"]
+forbidden = [
+    "pccm.gui",
+    "pccm.core.document",
+    "pccm.core.history",
+]
+# Plugins may import `pccm.plugins.api`, `pccm.algorithms.base`, `pccm.core.types`, etc.

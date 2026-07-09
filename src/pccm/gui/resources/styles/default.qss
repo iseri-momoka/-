@@ -1,0 +1,219 @@
+/* PCCM default stylesheet — dark theme inspired by CloudCompare / Qt Creator.
+
+Apply with ``app.setStyleSheet(read_text(path))`` in ``app.py``.
+Only essential widget classes are styled here; add new rules as panels grow.
+*/
+
+/* ── Global ────────────────────────────────────────────────────────── */
+QWidget {
+    font-size: 13px;
+    color: #dcdcdc;
+    background-color: #2b2b2b;
+}
+
+QMainWindow {
+    background-color: #1e1e1e;
+}
+
+/* ── Menu Bar ──────────────────────────────────────────────────────── */
+QMenuBar {
+    background-color: #2b2b2b;
+    color: #dcdcdc;
+    border-bottom: 1px solid #3c3c3c;
+}
+QMenuBar::item:selected {
+    background-color: #3d6e99;
+}
+QMenu {
+    background-color: #2b2b2b;
+    border: 1px solid #3c3c3c;
+}
+QMenu::item:selected {
+    background-color: #3d6e99;
+}
+
+/* ── Toolbar ───────────────────────────────────────────────────────── */
+QToolBar {
+    background-color: #2b2b2b;
+    border: none;
+    spacing: 4px;
+    padding: 2px;
+}
+QToolButton {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 4px;
+}
+QToolButton:hover {
+    border: 1px solid #5a5a5a;
+    background-color: #3c3c3c;
+}
+QToolButton:pressed {
+    background-color: #3d6e99;
+}
+
+/* ── Dock Widgets ──────────────────────────────────────────────────── */
+QDockWidget {
+    titlebar-close-icon: none;
+}
+QDockWidget::title {
+    background-color: #333333;
+    padding: 6px;
+    border-bottom: 1px solid #3c3c3c;
+}
+
+/* ── Tree View (DB Tree) ───────────────────────────────────────────── */
+QTreeView {
+    background-color: #252525;
+    alternate-background-color: #2a2a2a;
+    border: none;
+    outline: none;
+}
+QTreeView::item:selected {
+    background-color: #3d6e99;
+}
+
+/* ── Tables / Forms ────────────────────────────────────────────────── */
+QTableWidget, QTableView {
+    background-color: #252525;
+    gridline-color: #3c3c3c;
+    border: none;
+}
+QTableWidget::item:selected, QTableView::item:selected {
+    background-color: #3d6e99;
+}
+
+QFormLayout QLabel {
+    color: #b0b0b0;
+}
+
+/* ── Spin Box ──────────────────────────────────────────────────────── */
+QSpinBox, QDoubleSpinBox {
+    background-color: #1e1e1e;
+    border: 1px solid #3c3c3c;
+    border-radius: 3px;
+    padding: 2px 6px;
+}
+QSpinBox:focus, QDoubleSpinBox:focus {
+    border: 1px solid #3d6e99;
+}
+
+/* ── Combo Box ─────────────────────────────────────────────────────── */
+QComboBox {
+    background-color: #1e1e1e;
+    border: 1px solid #3c3c3c;
+    border-radius: 3px;
+    padding: 2px 6px;
+}
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+QComboBox QAbstractItemView {
+    background-color: #1e1e1e;
+    border: 1px solid #3c3c3c;
+    selection-background-color: #3d6e99;
+}
+
+/* ── Line Edit ─────────────────────────────────────────────────────── */
+QLineEdit {
+    background-color: #1e1e1e;
+    border: 1px solid #3c3c3c;
+    border-radius: 3px;
+    padding: 2px 6px;
+    selection-background-color: #3d6e99;
+}
+QLineEdit:focus {
+    border: 1px solid #3d6e99;
+}
+
+/* ── Push Buttons ──────────────────────────────────────────────────── */
+QPushButton {
+    background-color: #3c3c3c;
+    border: 1px solid #505050;
+    border-radius: 4px;
+    padding: 5px 14px;
+    min-width: 60px;
+}
+QPushButton:hover {
+    background-color: #4a4a4a;
+    border: 1px solid #6a6a6a;
+}
+QPushButton:pressed {
+    background-color: #3d6e99;
+}
+QPushButton:disabled {
+    color: #606060;
+    background-color: #2b2b2b;
+}
+
+/* ── Check Box / Radio ─────────────────────────────────────────────── */
+QCheckBox, QRadioButton {
+    spacing: 6px;
+}
+QCheckBox::indicator, QRadioButton::indicator {
+    width: 16px;
+    height: 16px;
+}
+
+/* ── Tab Widget ────────────────────────────────────────────────────── */
+QTabWidget::pane {
+    border: 1px solid #3c3c3c;
+}
+QTabBar::tab {
+    background-color: #2b2b2b;
+    border: 1px solid #3c3c3c;
+    padding: 5px 12px;
+    border-bottom: none;
+}
+QTabBar::tab:selected {
+    background-color: #333333;
+    border-bottom: 1px solid #3d6e99;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────── */
+QScrollBar:vertical {
+    background: transparent;
+    width: 10px;
+}
+QScrollBar::handle:vertical {
+    background-color: #5a5a5a;
+    border-radius: 5px;
+    min-height: 30px;
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0;
+}
+QScrollBar:horizontal {
+    background: transparent;
+    height: 10px;
+}
+QScrollBar::handle:horizontal {
+    background-color: #5a5a5a;
+    border-radius: 5px;
+    min-width: 30px;
+}
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    width: 0;
+}
+
+/* ── Status Bar ────────────────────────────────────────────────────── */
+QStatusBar {
+    background-color: #1e1e1e;
+    border-top: 1px solid #3c3c3c;
+    color: #a0a0a0;
+}
+QStatusBar QLabel {
+    color: #a0a0a0;
+}
+
+/* ── Console Panel ─────────────────────────────────────────────────── */
+QPlainTextEdit {
+    background-color: #1e1e1e;
+    border: none;
+    font-family: "Consolas", "Fira Code", "Courier New", monospace;
+    font-size: 12px;
+    color: #dcdcdc;
+    selection-background-color: #3d6e99;
+}

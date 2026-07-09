@@ -1,0 +1,65 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Type checking
+.mypy_cache/
+
+# Pre-commit
+.pre-commit-cache/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Project-specific ----
+# User plugins are drop-in; they are never committed.
+src/pccm/plugins/user_plugins/*
+!src/pccm/plugins/user_plugins/.gitkeep
+
+# Demo output
+demo_out.png
+demo.ply
+
+# Large binary fixtures — managed via Git LFS
+*.las
+*.laz
+*.e57
+*.pcd
+
+# Build artifacts
+*.spec
+*.exe
+*.dmg
+*.AppImage
+
+# Logs
+*.log

@@ -1,0 +1,20 @@
+# Ruff configuration for PCCM
+line-length = 99
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "SIM", "RUF"]
+ignore = [
+    "E501",   # line length — handled by formatter
+    "N802",   # function name should be lowercase (Qt convention)
+    "N803",   # argument name should be lowercase
+    "N806",   # variable in function should be lowercase
+]
+
+[lint.per-file-ignores]
+"src/pccm/gui/**" = ["N802", "N806"]
+"tests/**" = ["F811", "N803"]
+
+[format]
+quote-style = "double"
+indent-style = "space"

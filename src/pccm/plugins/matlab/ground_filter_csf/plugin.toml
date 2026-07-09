@@ -1,0 +1,7 @@
+[plugin]
+name = "ground_filter_csf"
+version = "0.1.0"
+entry = "pccm.plugins.matlab.ground_filter_csf.algorithm"
+author = ""
+description = "Cloth Simulation Filter — ground point classification ported from MATLAB"
+license = "GPL-3.0"

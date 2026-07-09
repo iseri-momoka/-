@@ -1,0 +1,31 @@
+# PCCM team structure — see docs/architecture.md §8.3
+# Format: <pattern> @<team> [<extra-reviewers>]
+# Required: the owner team + at least one other reviewer
+
+# Core and algorithms — no GUI coupling
+/src/pccm/core/             @team-core
+/src/pccm/algorithms/       @team-algorithms
+/src/pccm/spatial/          @team-algorithms
+
+# I/O
+/src/pccm/io/               @team-io
+
+# Tools
+/src/pccm/tools/            @team-algorithms
+
+# GUI — the only layer that may import PySide6
+/src/pccm/gui/              @team-gui
+
+# Plugins — MATLAB ports + plugin API
+/src/pccm/plugins/          @team-algorithms @team-matlab-port
+
+# Tests
+/tests/                     @team-qa
+
+# Build and packaging
+/pyproject.toml             @team-leads
+/.github/                   @team-leads
+/pyinstaller/               @team-leads
+
+# Docs
+/docs/                      @team-leads @team-algorithms
