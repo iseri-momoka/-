@@ -55,11 +55,28 @@ demo.ply
 *.e57
 *.pcd
 
-# Build artifacts
+# Build artifacts (CloudCompare build dir + PyInstaller)
 *.spec
 *.exe
 *.dmg
 *.AppImage
+*.dll
+*.lib
+*.exp
+*.ilk
+*.pdb
+*.obj
+*.o
+*.sbr
+
+# CloudCompare build directory (huge, don't commit)
+原软件代码/CloudCompare-master/build/
+
+# Qt translation build artifacts
+*.qm
 
 # Logs
 *.log
+
+# aqtinstall log
+aqtinstall.log

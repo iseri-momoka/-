@@ -58,6 +58,7 @@ plugin = [
 
 [project.scripts]
 pccm = "pccm.__main__:main"
+pccm-cli = "pccm.cli.dispatcher:main"
 
 [project.entry-points."pccm.plugins"]
 # Each MATLAB port registers itself here so importlib.metadata can discover

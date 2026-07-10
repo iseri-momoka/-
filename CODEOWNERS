@@ -7,17 +7,24 @@
 /src/pccm/algorithms/       @team-algorithms
 /src/pccm/spatial/          @team-algorithms
 
+# CLI — CloudCompare ↔ Python bridge
+/src/pccm/cli/              @team-algorithms
+
 # I/O
 /src/pccm/io/               @team-io
 
 # Tools
 /src/pccm/tools/            @team-algorithms
 
-# GUI — the only layer that may import PySide6
+# GUI — the only Python layer that may import PySide6
 /src/pccm/gui/              @team-gui
 
 # Plugins — MATLAB ports + plugin API
 /src/pccm/plugins/          @team-algorithms @team-matlab-port
+
+# C++ frontend — CloudCompare source and build
+/原软件代码/                 @team-frontend
+CLAUDE.md                   @team-leads
 
 # Tests
 /tests/                     @team-qa
