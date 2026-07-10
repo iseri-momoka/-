@@ -1,0 +1,133 @@
+================================================================================
+                    CloudCompare qCC 目录文件说明
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│  序号  │              文件名                         │       作用（中文）                              │                    英文说明                        │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                       一、核心应用程序文件 (Core Application)                                                       │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   1    │ main.cpp                                    │ 应用程序入口点，main函数所在地                  │ Application entry point                            │
+│   2    │ mainwindow.cpp / mainwindow.h               │ 主窗口，整个GUI的核心框架                      │ Main window, the core framework of the entire GUI   │
+│   3    │ ccApplication.cpp / ccApplication.h         │ 应用程序类，管理应用生命周期                    │ Application class managing app lifecycle            │
+│   4    │ ccCommon.h                                  │ 公共定义、宏和全局声明                          │ Common definitions, macros and global declarations  │
+│   5    │ ccUtils.cpp / ccUtils.h                     │ 工具函数集，各种通用辅助函数                    │ Utility functions, various common helper functions  │
+│   6    │ ccConsole.cpp / ccConsole.h                 │ 控制台输出管理，日志和调试信息输出              │ Console output management, logging & debug output   │
+│   7    │ ccRecentFiles.cpp / ccRecentFiles.h         │ 最近打开文件列表管理                            │ Recent files list management                        │
+│   8    │ ccReservedIDs.h                             │ 保留ID定义（用于特定实体标识）                  │ Reserved ID definitions for specific entity IDs     │
+│   9    │ ccCustomDoubleValidator.h                   │ 自定义双精度浮点数输入验证器                    │ Custom double-precision input validator             │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                       二、对话框类 (Dialog Classes)                                                                    │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│  10    │ ccAboutDialog.cpp / ccAboutDialog.h         │ 关于对话框（版本、作者、许可信息）              │ About dialog (version, authors, license info)       │
+│  11    │ ccAdjustZoomDlg.cpp / ccAdjustZoomDlg.h     │ 调整缩放对话框                                  │ Adjust zoom dialog                                  │
+│  12    │ ccAlignDlg.cpp / ccAlignDlg.h               │ 点云对齐/配准对话框                             │ Point cloud alignment/registration dialog           │
+│  13    │ ccApplyTransformationDlg.cpp/.h             │ 应用变换矩阵对话框（旋转/平移/缩放）            │ Apply transformation dialog (rotate/translate/scale)│
+│  14    │ ccAskThreeDoubleValuesDlg.cpp/.h            │ 输入三个双精度值的通用对话框                    │ Generic dialog for inputting three double values    │
+│  15    │ ccAskTwoDoubleValuesDlg.cpp/.h              │ 输入两个双精度值的通用对话框                    │ Generic dialog for inputting two double values      │
+│  16    │ ccBoundingBoxEditorDlg.cpp/.h               │ 包围盒编辑器对话框                              │ Bounding box editor dialog                          │
+│  17    │ ccCamSensorProjectionDlg.cpp/.h             │ 相机传感器投影参数设置对话框                    │ Camera sensor projection settings dialog            │
+│  18    │ ccClippingBoxRepeatDlg.cpp/.h               │ 裁剪盒重复/阵列参数对话框                       │ Clipping box repeat/array parameters dialog         │
+│  19    │ ccColorFromScalarDlg.cpp/.h                 │ 从标量场生成颜色映射对话框                      │ Color from scalar field mapping dialog              │
+│  20    │ ccColorGradientDlg.cpp/.h                   │ 颜色渐变编辑器对话框                            │ Color gradient editor dialog                        │
+│  21    │ ccColorLevelsDlg.cpp/.h                     │ 颜色色阶/直方图调整对话框                       │ Color levels/histogram adjustment dialog            │
+│  22    │ ccComparisonDlg.cpp/.h                      │ 点云比较/差异分析对话框                         │ Cloud comparison/difference analysis dialog         │
+│  23    │ ccComputeOctreeDlg.cpp/.h                   │ 计算八叉树参数对话框                            │ Octree computation parameters dialog                │
+│  24    │ ccEntitySelectionDlg.cpp/.h                 │ 实体选择对话框（层级树中选择实体）              │ Entity selection dialog (select from hierarchy)     │
+│  25    │ ccEnvelopeExtractorDlg.cpp/.h               │ 包络提取参数对话框                              │ Envelope extraction parameters dialog               │
+│  26    │ ccExportCoordToSFDlg.cpp/.h                 │ 导出坐标到标量场对话框                          │ Export coordinates to scalar field dialog           │
+│  27    │ ccFilterByValueDlg.cpp/.h                   │ 按标量值过滤点云对话框                          │ Filter point cloud by scalar value dialog           │
+│  28    │ ccFitSphereDlg.cpp/.h                       │ 拟合球体参数对话框                              │ Sphere fitting parameters dialog                    │
+│  29    │ ccGBLSensorProjectionDlg.cpp/.h             │ GBL(地面激光)传感器投影对话框                   │ Ground-based LiDAR sensor projection dialog         │
+│  30    │ ccGeomFeaturesDlg.cpp/.h                    │ 几何特征计算对话框                              │ Geometric features computation dialog               │
+│  31    │ ccGraphicalSegmentationOptionsDlg.cpp/.h    │ 图形分割选项配置对话框                          │ Graphical segmentation options dialog               │
+│  32    │ ccInterpolationDlg.cpp/.h                   │ 插值参数设置对话框                              │ Interpolation parameters dialog                     │
+│  33    │ ccItemSelectionDlg.cpp/.h                   │ 项目/元素选择对话框                             │ Item selection dialog                               │
+│  34    │ ccKrigingParamsDialog.cpp/.h                │ 克里金插值参数对话框                            │ Kriging interpolation parameters dialog             │
+│  35    │ ccLabelingDlg.cpp/.h                        │ 点云标注/标签对话框                             │ Point cloud labeling dialog                         │
+│  36    │ ccMatchScalesDlg.cpp/.h                     │ 匹配比例尺对话框                                │ Match scales dialog                                 │
+│  37    │ ccNoiseFilterDlg.cpp/.h                     │ 噪声过滤参数对话框                              │ Noise filter parameters dialog                      │
+│  38    │ ccNormalComputationDlg.cpp/.h               │ 法线计算参数对话框                              │ Normal computation parameters dialog                │
+│  39    │ ccOrderChoiceDlg.cpp/.h                     │ 顺序选择对话框                                  │ Order choice dialog                                 │
+│  40    │ ccOrthoSectionGenerationDlg.cpp/.h          │ 正交截面生成对话框                              │ Ortho-section generation dialog                     │
+│  41    │ ccPlaneEditDlg.cpp/.h                       │ 平面编辑对话框                                  │ Plane edit dialog                                   │
+│  42    │ ccPointListPickingDlg.cpp/.h                │ 点列表拾取对话框                                │ Point list picking dialog                           │
+│  43    │ ccPointPairRegistrationDlg.cpp/.h           │ 点对配准（手动选点对齐）对话框                  │ Point pair registration (manual pick alignment) dlg │
+│  44    │ ccPointPropertiesDlg.cpp/.h                 │ 点属性显示/编辑对话框                           │ Point properties display/edit dialog                │
+│  45    │ ccPrimitiveDistanceDlg.cpp/.h               │ 图元距离计算对话框                              │ Primitive distance computation dialog               │
+│  46    │ ccPrimitiveFactoryDlg.cpp/.h                │ 图元工厂（创建基本几何体）对话框                │ Primitive factory (create basic geometries) dialog  │
+│  47    │ ccPtsSamplingDlg.cpp/.h                     │ 点采样参数对话框                                │ Point sampling parameters dialog                    │
+│  48    │ ccRegistrationDlg.cpp/.h                    │ 自动配准（ICP等）对话框                         │ Automatic registration (ICP etc.) dialog            │
+│  49    │ ccScalarFieldArithmeticsDlg.cpp/.h          │ 标量场算术运算对话框（+、-、*、/）              │ Scalar field arithmetic dialog (+, -, *, /)         │
+│  50    │ ccScalarFieldFromColorDlg.cpp/.h            │ 从颜色通道生成标量场对话框                      │ Generate scalar field from color channels dialog    │
+│  51    │ ccScaleDlg.cpp/.h                           │ 缩放变换对话框                                  │ Scale transformation dialog                         │
+│  52    │ ccSectionExtractionSubDlg.cpp/.h            │ 截面提取子对话框（辅助参数）                    │ Section extraction sub-dialog (auxiliary params)    │
+│  53    │ ccSelectChildrenDlg.cpp/.h                  │ 选择子实体对话框                                │ Select children entities dialog                     │
+│  54    │ ccSensorComputeDistancesDlg.cpp/.h          │ 传感器距离计算对话框                            │ Sensor compute distances dialog                     │
+│  55    │ ccSensorComputeScatteringAnglesDlg.cpp/.h   │ 传感器散射角计算对话框                          │ Sensor compute scattering angles dialog             │
+│  56    │ ccSetSFAsVec3Dlg.cpp/.h                     │ 将标量场设置为三维向量对话框                    │ Set scalar field as Vec3 dialog                     │
+│  57    │ ccShortcutDialog.cpp/.h                     │ 快捷键设置/查看对话框                           │ Shortcut settings/view dialog                       │
+│  58    │ ccSmoothPolylineDlg.cpp/.h                  │ 折线平滑处理参数对话框                          │ Polyline smoothing parameters dialog                │
+│  59    │ ccSORFilterDlg.cpp/.h                       │ SOR(统计离群点移除)滤波对话框                   │ Statistical Outlier Removal filter dialog           │
+│  60    │ ccStatisticalTestDlg.cpp/.h                 │ 统计检验对话框                                  │ Statistical test dialog                             │
+│  61    │ ccSubsamplingDlg.cpp/.h                     │ 子采样/降采样参数对话框                         │ Subsampling/decimation parameters dialog            │
+│  62    │ ccUnrollDlg.cpp/.h                          │ 点云展开/展平对话框（用于圆柱物体）             │ Unroll/unfold point cloud dialog (for cylindrical)  │
+│  63    │ ccWaveformDialog.cpp/.h                     │ 波形显示对话框（LiDAR全波形数据）               │ Waveform display dialog (LiDAR full waveform data)  │
+│  64    │ ccHistogramWindow.cpp/.h                    │ 直方图显示窗口                                  │ Histogram display window                            │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                       三、交互工具类 (Interactive Tools)                                                              │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│  65    │ ccClippingBoxTool.cpp/.h                    │ 裁剪盒交互工具（交互式裁剪点云）                │ Clipping box tool (interactive cloud clipping)      │
+│  66    │ ccCropTool.cpp/.h                           │ 裁剪/切割工具                                   │ Crop/cut tool                                       │
+│  67    │ ccGraphicalSegmentationTool.cpp/.h          │ 图形分割工具（手动圈选分割）                    │ Graphical segmentation tool (manual lasso select)   │
+│  68    │ ccGraphicalTransformationTool.cpp/.h        │ 图形变换工具（交互式旋转/平移/缩放）            │ Graphical transformation tool (interactive RTS)     │
+│  69    │ ccPointPickingGenericInterface.cpp/.h       │ 点拾取通用接口（点击选点的基类）                │ Point picking generic interface (base class)        │
+│  70    │ ccRasterizeTool.cpp/.h                      │ 栅格化工具（点云转网格/高程图）                 │ Rasterize tool (point cloud to grid/elevation map)  │
+│  71    │ ccSectionExtractionTool.cpp/.h              │ 截面提取工具（交互式剖面）                      │ Section extraction tool (interactive cross-section) │
+│  72    │ ccTracePolylineTool.cpp/.h                  │ 追踪折线工具（沿点云绘制折线）                  │ Trace polyline tool (draw polyline along cloud)     │
+│  73    │ ccVolumeCalcTool.cpp/.h                     │ 体积计算工具（2.5D体积量算）                    │ Volume calculation tool (2.5D volume measurement)   │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                       四、实体操作 (Entity Actions)                                                                   │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│  74    │ ccEntityAction.cpp / ccEntityAction.h       │ 实体操作集合（右键菜单中的各种操作）            │ Entity actions (right-click context menu operations)│
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                       五、配准相关 (Registration)                                                                     │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│  75    │ ccRegistrationTools.cpp/.h                  │ 配准工具集（ICP等算法的高层封装）               │ Registration tools (high-level ICP algorithm wrap)  │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                       六、命令行支持 (Command Line)                                                                    │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│  76    │ ccArgumentParser.cpp/.h                     │ 命令行参数解析器                                │ Command-line argument parser                        │
+│  77    │ ccCommandLineCommands.cpp/.h               │ 命令行命令注册与分发                            │ Command-line command registration & dispatch        │
+│  78    │ ccCommandLineParser.cpp/.h                 │ 命令行解析器（与ArgumentParser配合）             │ Command line parser (works with ArgumentParser)     │
+│  79    │ ccCommandCrossSection.cpp/.h               │ 命令行截面生成命令                              │ Command-line cross-section command                  │
+│  80    │ ccCommandRaster.cpp/.h                      │ 命令行栅格化命令                                │ Command-line rasterization command                  │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                       七、算法与库封装 (Algorithms & Library Wrappers)                                                  │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│  81    │ ccLibAlgorithms.cpp/.h                      │ CC核心库算法高层封装                            │ High-level wrapper for CC core library algorithms   │
+│  82    │ ccContourLinesGenerator.cpp/.h              │ 等高线/轮廓线生成器                              │ Contour/isolines generator                          │
+│  83    │ ccEnvelopeExtractor.cpp/.h                  │ 包络/外轮廓提取算法                             │ Envelope/outline extraction algorithm               │
+│  84    │ ccInnerRect2DFinder.cpp/.h                  │ 最大内接矩形查找算法                            │ Maximum inner rectangle finder                      │
+│  85    │ ccIsolines.h                                │ 等值线数据结构                                  │ Isolines data structure                             │
+│  86    │ ccQCustomPlot.h                             │ QCustomPlot图表库的集成封装                      │ QCustomPlot chart library integration wrapper       │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                       八、编辑器 (Editors)                                                                            │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│  87    │ cc2.5DimEditor.cpp / cc2.5DimEditor.h       │ 2.5D图像编辑器（编辑深度图/高程图）             │ 2.5D image editor (edit depth/elevation maps)       │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                                    文件统计
+================================================================================
+  核心应用程序文件:      9 个
+  对话框类:            55 个
+  交互工具类:           9 个
+  实体操作:             1 个
+  配准相关:             1 个
+  命令行支持:           5 个
+  算法与库封装:         6 个
+  编辑器:               1 个
+  ─────────────────────────
+  总计:                87 个 (cpp/h 文件对，含单独.h)
+================================================================================
