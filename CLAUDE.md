@@ -11,16 +11,18 @@ CloudCompare slim build — a lightweight 3D point cloud viewer based on **ccVie
 ## Build Commands
 
 ```bash
-# Recommended: use CMake preset
-cmake --preset slim
+# Recommended: use CMake preset (Visual Studio 18 2026 generator, x64)
+cmake --preset slim          # Release
+cmake --preset slim-debug    # Debug
 
-# Manual configure
+# Manual configure (if presets aren't available)
 mkdir build2 && cd build2
 cmake .. -DCMAKE_BUILD_TYPE=Release -DPLUGIN_IO_QCORE=ON -DPLUGIN_IO_QLAS=ON \
   -DOPTION_USE_DXF_LIB=OFF -DOPTION_USE_SHAPE_LIB=OFF
 
 # Build
 cmake --build build2 --config Release --parallel
+# Or with preset: cmake --build --preset slim
 ```
 
 Qt deployment (windeployqt/macdeployqt) runs automatically via `cmake/DeployQt.cmake`.
@@ -36,6 +38,8 @@ git clone --depth 1 https://github.com/CloudCompare/CCCoreLib.git
 ```
 
 LASzip (optional, for LAS format) is bundled in `libs/qCC_io/extern/laszip/`.
+
+**QDarkStyleSheet** is included as a git submodule at `libs/CCAppCommon/QDarkStyleSheet`.
 
 ## Architecture
 
@@ -93,6 +97,12 @@ ccNormalComputationDlg, ccSubsamplingDlg, ccFilterByValueDlg, ccSORFilterDlg
 - Use `[[nodiscard]]` for const getter methods
 - Use `nullptr` instead of `NULL`
 - Chinese documentation files (`CloudCompare-*-说明表.txt`) contain per-file descriptions of the original CloudCompare codebase — reference when modifying upstream code
+
+### Formatting
+
+- **clang-format** config: `.clang-format` (C++17, 120 col limit, tabs for C++, spaces for CMake)
+- **EditorConfig**: `.editorconfig` (UTF-8, LF line endings, tab=4 for C++)
+- No automated lint/CI pipeline configured
 
 ## Python Scripts
 
