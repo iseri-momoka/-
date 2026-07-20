@@ -39,3 +39,4 @@ Thumbs.db
 # Python
 __pycache__/
 *.pyc
+libs/qCC_db/extern/CCCoreLib/
