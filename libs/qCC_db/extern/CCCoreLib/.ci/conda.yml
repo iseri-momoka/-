@@ -1,8 +1,0 @@
-name: CCCoreLib
-channels:
-  - conda-forge
-dependencies:
-  - ninja
-  - qt6-main==6.8.3
-  - cgal=6.0.*
-  - tbb-devel=2022.*
