@@ -6,14 +6,10 @@ include_directories( ${CloudComparePlugins_SOURCE_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../qCC_selected/dialogs )
-include_directories( "C:/Users/30892/Documents/记者团" )
 
 # ccViewer sources
 file( GLOB header_list *.h )
 file( GLOB source_list *.cpp )
-
-# Native C++ algorithm tools
-list( APPEND source_list "C:/Users/30892/Documents/记者团/ccViewerAlgorithms.cpp" )
 
 # qCC_selected dialog sources (only the 4 clean ones)
 set( QCC_SEL "${CMAKE_CURRENT_SOURCE_DIR}/../qCC_selected" )

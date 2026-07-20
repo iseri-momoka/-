@@ -10,7 +10,7 @@
 | 优先级 | 类别 | 数量 | 状态摘要 |
 |--------|------|------|----------|
 | **P0 — 必须** | 功能缺陷/数据安全 | 3 | 3/3 已修复 ✅ |
-| **P1 — 高** | 性能瓶颈 | 6 | 0/6 已修复 |
+| **P1 — 高** | 性能瓶颈 | 6 | 3/6 已修复 ✅ |
 | **P2 — 中** | 代码质量/构建优化 | 8 | 5/8 已修复 ✅ |
 | **P3 — 低** | 技术债务/清理 | 5 | 1/5 已修复 |
 
@@ -30,9 +30,9 @@
 
 | # | 问题 | 文件:行 | 描述 | 影响 | 建议方案 | 状态 |
 |---|------|---------|------|------|----------|------|
-| 4 | **UI 阻塞** | `ccviewer.cpp:1578-1642` | `runPythonScript()` 使用 `waitForFinished(120000)` 同步等待 | 4个Python工具 UI 冻结最长2分钟 | 改用信号槽异步 `QProcess::start()` | ⬜ 待做 |
-| 5 | **I/O 性能** | `ccviewer.cpp:1370-1396` | `exportSelectedCloudToCSV()` 逐点 `QTextStream <<` 写入 | 10M+ 点云导出极慢且阻塞 UI | 批量写入 `QVector<QByteArray>` 或 `QSaveFile` | ⬜ 待做 |
-| 6 | **启动延迟** | `ccviewer.cpp:1258-1316` | `resolvePythonExe()` 同步探测 4+ 次 QProcess | 首次使用 Python 工具卡顿 3-5秒 | 后台线程探测或 `QStandardPaths::findExecutable` | ⬜ 待做 |
+| 4 | **UI 阻塞** | `ccviewer.cpp:1578-1642` | `runPythonScript()` 使用 `waitForFinished(120000)` 同步等待 | 4个Python工具 UI 冻结最长2分钟 | 改用信号槽异步 `QProcess::start()` | ✅ 已修复（Python调用已移除，改为C++原生实现） |
+| 5 | **I/O 性能** | `ccviewer.cpp:1370-1396` | `exportSelectedCloudToCSV()` 逐点 `QTextStream <<` 写入 | 10M+ 点云导出极慢且阻塞 UI | 批量写入 `QVector<QByteArray>` 或 `QSaveFile` | ✅ 已修复（Python调用已移除，无需CSV导出） |
+| 6 | **启动延迟** | `ccviewer.cpp:1258-1316` | `resolvePythonExe()` 同步探测 4+ 次 QProcess | 首次使用 Python 工具卡顿 3-5秒 | 后台线程探测或 `QStandardPaths::findExecutable` | ✅ 已修复（Python调用已移除，无需探测） |
 | 7 | **内存管理** | `ccviewer.h:239-241` | `m_glWindow`、`m_selectedObject` 等裸指针 | 析构路径遗漏即泄漏 | 关键拥有指针改为 `std::unique_ptr` | ⬜ 待做 |
 | 8 | **内存管理** | `ccviewer.cpp:76` | `static ccCameraParamEditDlg* s_cpeDlg` 全局裸指针 | 静态对象生命周期风险 | `std::unique_ptr` + 静态局部变量 | ⬜ 待做 |
 | 9 | **场景加载** | `ccviewer.cpp:588-684` | `addToDB(QStringList)` 先删整个 DB 再逐文件同步加载 | 多文件拖放 UI 冻结，丢失视角 | 增量加载 + 进度对话框 | ⬜ 待做 |
@@ -97,11 +97,11 @@
 - [x] 冗余代码清理（P3 #20）
 
 ### 第二阶段（2-3周）: 性能优化
-- [ ] Python 工具改为异步 QProcess（P1 #4）
-- [ ] CSV 导出批量写入优化（P1 #5）
+- [x] ~~Python 工具改为异步 QProcess（P1 #4）~~ → 改为C++原生实现，彻底消除Python开销
+- [x] ~~CSV 导出批量写入优化（P1 #5）~~ → 无需CSV导出，Python调用已移除
+- [x] ~~后台线程 Python 路径探测（P1 #6）~~ → 无需Python路径探测
 - [ ] 场景增量加载（P1 #9）
 - [ ] 智能指针替换关键裸指针（P1 #7, #8）
-- [ ] 后台线程 Python 路径探测（P1 #6）
 
 ### 第三阶段（1-2周）: 代码质量
 - [ ] 提取重复代码工具函数（P2 #10-12）

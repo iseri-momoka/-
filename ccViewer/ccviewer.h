@@ -34,7 +34,6 @@ class QTreeView;
 class ccClipBox;
 class ccPointCloud;
 class ccBBox;
-class QTemporaryFile;
 
 //! Application main window
 class ccViewer : public QMainWindow
@@ -227,16 +226,6 @@ class ccViewer : public QMainWindow
 	//! Removes the clipping box from the display and resets the tool state
 	void closeClipBox();
 
-	// === SLIM: Python helper methods ===
-	//! Returns the path to the Python scripts directory
-	[[nodiscard]] QString pythonScriptsDir() const;
-	//! Finds a working Python interpreter (cached after the first call)
-	QString resolvePythonExe();
-	//! Runs a Python script synchronously and returns its stdout (empty on error)
-	QString runPythonScript(const QString& scriptName, const QStringList& args);
-	//! Exports the selected point cloud to a temporary CSV file
-	bool exportSelectedCloudToCSV(QTemporaryFile& tempFile);
-
   protected: // members
 	//! Releases any connected 3D mouse (if any)
 	void release3DMouse();
@@ -283,9 +272,6 @@ class ccViewer : public QMainWindow
 	bool m_clipBoxActive;
 	//! Cloud the clipping box was activated on (apply target)
 	ccPointCloud* m_clipBoxCloud;
-
-	// === SLIM: Python interpreter (resolved once, cached) ===
-	QString m_pythonExe;
 
 	// === SLIM: Selection tracking for plugins ===
 	mutable ccHObject::Container m_selectedEntities;

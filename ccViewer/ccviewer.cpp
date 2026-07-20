@@ -61,7 +61,7 @@
 // Progress dialog
 #include <ccProgressDialog.h>
 
-// === SLIM: Clipping box & Python tools ===
+// === SLIM: Clipping box & native tools ===
 #include <ccClipBox.h>
 
 // === SLIM: Native C++ algorithm tools ===
@@ -74,14 +74,13 @@
 #include <QDoubleSpinBox>
 #include <QFormLayout>
 #include <QInputDialog>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <QLabel>
-#include <QProcess>
 #include <QPushButton>
-#include <QStandardPaths>
-#include <QTemporaryFile>
+
+// CCCoreLib (for native algorithms: TLS plane fitting, KNN)
+#include <DgmOctree.h>
+#include <Neighbourhood.h>
+#include <ReferenceCloud.h>
 
 // Camera parameters dialog
 static ccCameraParamEditDlg* s_cpeDlg = nullptr;
@@ -1407,171 +1406,6 @@ void ccViewer::onClipBoxModified(const ccBBox* box)
 }
 
 // ============================================================================
-// SLIM: Tools menu - Python helper methods
-// ============================================================================
-
-QString ccViewer::pythonScriptsDir() const
-{
-	// Look for python/ directory next to the executable first, then in source tree
-	QString exeDir = QCoreApplication::applicationDirPath();
-	QString pythonDir = exeDir + "/python";
-	if (QDir(pythonDir).exists())
-		return pythonDir;
-
-	// Fallback: look relative to the executable's parent (development layout)
-	pythonDir = exeDir + "/../python";
-	if (QDir(pythonDir).exists())
-		return QDir(pythonDir).absolutePath();
-
-	// Fallback: build tree layout (bin/ccViewer/ccViewer.exe -> ../../python)
-	pythonDir = exeDir + "/../../python";
-	if (QDir(pythonDir).exists())
-		return QDir(pythonDir).absolutePath();
-
-	return QString();
-}
-
-QString ccViewer::resolvePythonExe()
-{
-	if (!m_pythonExe.isEmpty())
-	{
-		return m_pythonExe;
-	}
-
-	QStringList candidates;
-
-	// 1) explicit override
-	QString envPython = qEnvironmentVariable("CCVIEWER_PYTHON");
-	if (!envPython.isEmpty())
-	{
-		candidates << envPython;
-	}
-
-	// 2) python from PATH
-	QString inPath = QStandardPaths::findExecutable("python");
-	if (!inPath.isEmpty())
-	{
-		candidates << inPath;
-	}
-
-	// 3) Windows py launcher
-	QString pyLauncher = QStandardPaths::findExecutable("py");
-	if (!pyLauncher.isEmpty())
-	{
-		candidates << pyLauncher;
-	}
-
-	// 4) common per-user install locations (Python 3.x)
-	QString localAppData = qEnvironmentVariable("LOCALAPPDATA");
-	if (!localAppData.isEmpty())
-	{
-		QDir programsDir(localAppData + "/Programs/Python");
-		const QStringList versions = programsDir.entryList(QStringList() << "Python3*", QDir::Dirs, QDir::Name | QDir::Reversed);
-		for (const QString& version : versions)
-		{
-			candidates << programsDir.absoluteFilePath(version + "/python.exe");
-		}
-	}
-
-	// validate the candidates: the Windows Store 'python.exe' stub (WindowsApps)
-	// exits with an error, so a quick '--version' probe filters it out
-	for (const QString& candidate : candidates)
-	{
-		QProcess probe;
-		probe.start(candidate, QStringList() << "--version");
-		if (probe.waitForStarted(3000) && probe.waitForFinished(5000) && probe.exitCode() == 0)
-		{
-			m_pythonExe = candidate;
-			ccLog::Print(QString("[Python] Using interpreter: %1").arg(candidate));
-			return m_pythonExe;
-		}
-	}
-
-	ccLog::Error("No Python 3 interpreter found. Install Python (with numpy/scipy) or set the CCVIEWER_PYTHON environment variable to a python.exe path.");
-	return QString();
-}
-
-QString ccViewer::runPythonScript(const QString& scriptName, const QStringList& args)
-{
-	QString scriptsDir = pythonScriptsDir();
-	if (scriptsDir.isEmpty())
-	{
-		ccLog::Error("Python scripts directory not found (expected a 'python' folder next to the executable)");
-		return QString();
-	}
-
-	QString scriptPath = scriptsDir + "/" + scriptName;
-	if (!QFile::exists(scriptPath))
-	{
-		ccLog::Error(QString("Script not found: %1").arg(scriptPath));
-		return QString();
-	}
-
-	QString pythonExe = resolvePythonExe();
-	if (pythonExe.isEmpty())
-	{
-		return QString();
-	}
-
-	QStringList fullArgs;
-	fullArgs << scriptPath << args;
-
-	QProcess process;
-	process.start(pythonExe, fullArgs);
-	if (!process.waitForStarted(5000))
-	{
-		ccLog::Error(QString("Failed to start Python interpreter: %1").arg(pythonExe));
-		return QString();
-	}
-	if (!process.waitForFinished(120000)) // 2 minute timeout (KNN on big clouds can be slow)
-	{
-		process.kill();
-		process.waitForFinished(3000);
-		ccLog::Error(QString("Python script timed out: %1").arg(scriptName));
-		return QString();
-	}
-
-	if (process.exitCode() != 0)
-	{
-		// the scripts print {"error": ...} to stdout and details to stderr
-		QString err = QString::fromUtf8(process.readAllStandardError()).trimmed();
-		QString out = QString::fromUtf8(process.readAllStandardOutput()).trimmed();
-		ccLog::Error(QString("Python script '%1' failed: %2").arg(scriptName, err.isEmpty() ? out : err));
-		return QString();
-	}
-
-	return QString::fromUtf8(process.readAllStandardOutput());
-}
-
-bool ccViewer::exportSelectedCloudToCSV(QTemporaryFile& tempFile)
-{
-	if (!m_selectedObject) return false;
-	ccPointCloud* cloud = ccHObjectCaster::ToPointCloud(m_selectedObject);
-	if (!cloud) return false;
-
-	if (!tempFile.open())
-	{
-		ccLog::Error("Failed to create temporary file");
-		return false;
-	}
-
-	QTextStream stream(&tempFile);
-	// keep enough digits for global (e.g. UTM) coordinates
-	stream.setRealNumberNotation(QTextStream::SmartNotation);
-	stream.setRealNumberPrecision(10);
-	unsigned n = cloud->size();
-	for (unsigned i = 0; i < n; ++i)
-	{
-		const CCVector3* P = cloud->getPoint(i);
-		stream << P->x << "," << P->y << "," << P->z << "\n";
-	}
-	stream.flush();
-	tempFile.flush();
-
-	return true;
-}
-
-// ============================================================================
 // SLIM: Tools menu - TLS Plane Fitting
 // ============================================================================
 
@@ -1580,44 +1414,29 @@ void ccViewer::doActionTLSPlane()
 	if (!m_selectedObject) return;
 	ccPointCloud* cloud = ccHObjectCaster::ToPointCloud(m_selectedObject);
 	if (!cloud) { ccLog::Error("Select a point cloud first"); return; }
+	if (cloud->size() < 3) { ccLog::Error("Need at least 3 points for plane fitting"); return; }
 
-	// Export cloud to temp CSV
-	QTemporaryFile tempFile(QDir::tempPath() + "/cc_tls_input_XXXXXX.csv");
-	if (!exportSelectedCloudToCSV(tempFile))
+	// Use CCCoreLib Neighbourhood::getLSPlane (same pattern as ccViewerAlgorithms.cpp::fitPlaneTLS)
+	CCCoreLib::ReferenceCloud refCloud(cloud);
+	refCloud.addPointIndex(0, static_cast<unsigned>(cloud->size()));
+
+	CCCoreLib::Neighbourhood nh(&refCloud);
+	const PointCoordinateType* planeEq = nh.getLSPlane();
+	if (!planeEq)
 	{
-		ccLog::Error("Failed to export point cloud");
+		ccLog::Error("TLS plane fitting failed");
 		return;
 	}
 
-	// Run Python script
-	QString output = runPythonScript("tls_plane.py", QStringList() << tempFile.fileName());
-	if (output.isEmpty())
-	{
-		ccLog::Error("TLS Plane Fitting failed");
-		return;
-	}
+	// CCCoreLib convention: ax + by + cz = d
+	double a = planeEq[0];
+	double b = planeEq[1];
+	double c = planeEq[2];
+	double d = planeEq[3];
+	int npts = static_cast<int>(cloud->size());
 
-	// Parse JSON result
-	QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
-	if (!doc.isObject())
-	{
-		ccLog::Error(QString("Failed to parse Python output: %1").arg(output.left(200)));
-		return;
-	}
-
-	QJsonObject obj = doc.object();
-	if (obj.contains("error"))
-	{
-		ccLog::Error(QString("TLS Plane Fitting failed: %1").arg(obj["error"].toString()));
-		return;
-	}
-
-	double a = obj["a"].toDouble();
-	double b = obj["b"].toDouble();
-	double c = obj["c"].toDouble();
-	double d = obj["d"].toDouble();
-	QString eqn = obj["equation"].toString();
-	int npts = obj["num_points"].toInt();
+	QString eqn = QString("%1x + %2y + %3z = %4")
+		.arg(a, 0, 'f', 6).arg(b, 0, 'f', 6).arg(c, 0, 'f', 6).arg(d, 0, 'f', 6);
 
 	// Show result in a dialog
 	QString msg = QString(
@@ -1701,40 +1520,11 @@ void ccViewer::doActionPointProjection()
 	}
 	bool createCloud = chkCreateCloud->isChecked();
 
-	// Export cloud to temp CSV
-	QTemporaryFile tempFile(QDir::tempPath() + "/cc_projection_input_XXXXXX.csv");
-	if (!exportSelectedCloudToCSV(tempFile))
-	{
-		ccLog::Error("Failed to export point cloud");
-		return;
-	}
+	// Orthogonal projection: P_proj = P - ((A*Px + B*Py + C*Pz + D) / (A²+B²+C²)) * (A,B,C)
+	double norm2 = A * A + B * B + C * C;
 
-	// Create temp output file for projected points
-	QTemporaryFile tempOutFile(QDir::tempPath() + "/cc_projection_output_XXXXXX.csv");
-	if (!tempOutFile.open())
-	{
-		ccLog::Error("Failed to create temporary output file");
-		return;
-	}
-	QString outPath = tempOutFile.fileName();
-	tempOutFile.close(); // keep the file on disk (deleted with the QTemporaryFile object)
-
-	// Run Python script: point_projection.py <input_csv> <A> <B> <C> <D> [output_csv]
-	QString output = runPythonScript("point_projection.py",
-		QStringList() << tempFile.fileName()
-		<< QString::number(A) << QString::number(B)
-		<< QString::number(C) << QString::number(D)
-		<< outPath);
-
-	if (output.isEmpty())
-	{
-		ccLog::Error("Point Projection failed");
-		return;
-	}
-
-	// Read projected points from output CSV
 	ccPointCloud* projectedCloud = nullptr;
-	if (createCloud && QFile::exists(outPath))
+	if (createCloud)
 	{
 		projectedCloud = new ccPointCloud(cloud->getName() + QString(".projected"));
 		if (!projectedCloud->reserve(cloud->size()))
@@ -1744,34 +1534,18 @@ void ccViewer::doActionPointProjection()
 		}
 		else
 		{
-			// Read CSV
-			QFile outFile(outPath);
-			if (outFile.open(QIODevice::ReadOnly | QIODevice::Text))
+			unsigned n = cloud->size();
+			for (unsigned i = 0; i < n; ++i)
 			{
-				QTextStream in(&outFile);
-				// Skip header
-				if (!in.atEnd()) in.readLine();
-				while (!in.atEnd())
-				{
-					QString line = in.readLine().trimmed();
-					if (line.isEmpty()) continue;
-					QStringList parts = line.split(",");
-					if (parts.size() >= 3)
-					{
-						CCVector3 P(
-							static_cast<PointCoordinateType>(parts[0].toDouble()),
-							static_cast<PointCoordinateType>(parts[1].toDouble()),
-							static_cast<PointCoordinateType>(parts[2].toDouble())
-						);
-						projectedCloud->addPoint(P);
-					}
-				}
-				outFile.close();
+				const CCVector3* P = cloud->getPoint(i);
+				double t = (A * P->x + B * P->y + C * P->z + D) / norm2;
+				CCVector3 projected(
+					static_cast<PointCoordinateType>(P->x - t * A),
+					static_cast<PointCoordinateType>(P->y - t * B),
+					static_cast<PointCoordinateType>(P->z - t * C));
+				projectedCloud->addPoint(projected);
 			}
-		}
 
-		if (projectedCloud && projectedCloud->size() > 0)
-		{
 			// Copy colors from original
 			if (cloud->hasColors() && projectedCloud->reserveTheRGBTable())
 			{
@@ -1782,11 +1556,6 @@ void ccViewer::doActionPointProjection()
 				projectedCloud->showColors(true);
 			}
 			addToDB(projectedCloud, true, true, false, true);
-		}
-		else if (projectedCloud)
-		{
-			delete projectedCloud;
-			projectedCloud = nullptr;
 		}
 	}
 
@@ -1800,7 +1569,7 @@ void ccViewer::doActionPointProjection()
 	).arg(planeEqn).arg(cloud->size())
 	 .arg(createCloud && projectedCloud && projectedCloud->size() > 0 ?
 		  QString("<p>Projected point cloud added to 3D view.</p>") :
-		  QString("<p>Projected results saved to: %1</p>").arg(outPath));
+		  QString("<p>Projection complete.</p>"));
 
 	QMessageBox::information(this, tr("Point to Plane Projection"), msg);
 }
@@ -1822,43 +1591,77 @@ void ccViewer::doActionKNNSearch()
 		static_cast<int>(std::min<unsigned>(cloud->size(), 100)), 1, &ok);
 	if (!ok) return;
 
-	// Export cloud to temp CSV
-	QTemporaryFile tempFile(QDir::tempPath() + "/cc_knn_input_XXXXXX.csv");
-	if (!exportSelectedCloudToCSV(tempFile))
+	// Build octree if needed
+	ccOctree::Shared octree = cloud->getOctree();
+	if (!octree)
 	{
-		ccLog::Error("Failed to export point cloud");
-		return;
+		ccProgressDialog progressDlg(false, this);
+		progressDlg.setMethodTitle(tr("Computing octree"));
+		progressDlg.setInfo(tr("This may take a moment..."));
+		octree = cloud->computeOctree(&progressDlg);
+		if (!octree)
+		{
+			ccLog::Error("Failed to compute octree");
+			return;
+		}
 	}
 
-	// Run Python script: knn_search.py <input_csv> <K>
-	QString output = runPythonScript("knn_search.py",
-		QStringList() << tempFile.fileName() << QString::number(K));
-	if (output.isEmpty())
+	// Determine octree level for ~K*2 points per cell (same logic as ccViewerAlgorithms.cpp::knnSearch)
+	unsigned char level = 1;
 	{
-		ccLog::Error("KNN Search failed");
-		return;
+		CCVector3 diag = octree->getOctreeMaxs() - octree->getOctreeMins();
+		double ptsPerCell = static_cast<double>(cloud->size());
+		for (unsigned char l = 1; l <= 12; ++l)
+		{
+			double cells = std::pow(8.0, static_cast<double>(l));
+			if (ptsPerCell / cells < static_cast<double>(K) * 2.0)
+			{
+				level = l;
+				break;
+			}
+		}
 	}
 
-	// Parse JSON result
-	QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
-	if (!doc.isObject())
+	// KNN search: compute nearest-neighbor distances for all points
+	unsigned n = cloud->size();
+	double sumNearest = 0.0;
+	double maxNearest = 0.0;
+	unsigned validCount = 0;
+
+	for (unsigned i = 0; i < n; ++i)
 	{
-		ccLog::Error(QString("Failed to parse Python output: %1").arg(output.left(200)));
-		return;
+		CCCoreLib::ReferenceCloud refCloud(cloud);
+		double maxSquareDist = 0;
+		unsigned found = octree->findPointNeighbourhood(
+			cloud->getPoint(i), &refCloud, static_cast<unsigned>(K + 1), level, maxSquareDist);
+
+		if (found <= 1) continue; // only self or nothing
+
+		// Find the true nearest neighbor (excluding self at distance 0)
+		double nearestDist = std::numeric_limits<double>::max();
+		for (unsigned j = 0; j < found; ++j)
+		{
+			if (refCloud.getPointGlobalIndex(j) == i) continue;
+			const CCVector3* Q = refCloud.getPoint(j);
+			const CCVector3* P = cloud->getPoint(i);
+			double dx = Q->x - P->x;
+			double dy = Q->y - P->y;
+			double dz = Q->z - P->z;
+			double dist = std::sqrt(dx * dx + dy * dy + dz * dz);
+			if (dist < nearestDist)
+				nearestDist = dist;
+		}
+
+		if (nearestDist < std::numeric_limits<double>::max())
+		{
+			sumNearest += nearestDist;
+			if (nearestDist > maxNearest)
+				maxNearest = nearestDist;
+			++validCount;
+		}
 	}
 
-	QJsonObject obj = doc.object();
-	if (obj.contains("error"))
-	{
-		ccLog::Error(QString("KNN Search failed: %1").arg(obj["error"].toString()));
-		return;
-	}
-
-	int numPoints = obj["num_points"].toInt();
-	int kVal = obj["K"].toInt();
-	QJsonObject summary = obj["summary"].toObject();
-	double meanDist = summary["mean_nearest_distance"].toDouble();
-	double maxDist = summary["max_nearest_distance"].toDouble();
+	double meanDist = (validCount > 0) ? (sumNearest / validCount) : 0.0;
 
 	QString msg = QString(
 		"<h3>KNN Search Result</h3>"
@@ -1866,7 +1669,7 @@ void ccViewer::doActionKNNSearch()
 		"<p><b>K:</b> %2</p>"
 		"<p><b>Mean nearest-neighbor distance:</b> %3</p>"
 		"<p><b>Max nearest-neighbor distance:</b> %4</p>"
-	).arg(numPoints).arg(kVal).arg(meanDist, 0, 'f', 6).arg(maxDist, 0, 'f', 6);
+	).arg(validCount).arg(K).arg(meanDist, 0, 'f', 6).arg(maxNearest, 0, 'f', 6);
 
 	QMessageBox::information(this, tr("KNN Search"), msg);
 }
@@ -1957,43 +1760,77 @@ void ccViewer::doActionRotationMatrix()
 		return;
 	}
 
-	// Run Python script: rotation_matrix.py <x1> <y1> <z1> <x2> <y2> <z2>
-	QString output = runPythonScript("rotation_matrix.py",
-		QStringList() << QString::number(nx1) << QString::number(ny1) << QString::number(nz1)
-		<< QString::number(nx2) << QString::number(ny2) << QString::number(nz2));
-	if (output.isEmpty())
+	// Compute rotation matrix using Rodrigues' rotation formula (pure C++)
+	double R[3][3];
+	double error = 0.0;
 	{
-		ccLog::Error("Rotation Matrix computation failed");
-		return;
-	}
+		// Normalize both vectors
+		double len1 = std::sqrt(nx1 * nx1 + ny1 * ny1 + nz1 * nz1);
+		double len2 = std::sqrt(nx2 * nx2 + ny2 * ny2 + nz2 * nz2);
+		double ux = nx1 / len1, uy = ny1 / len1, uz = nz1 / len1;
+		double vx = nx2 / len2, vy = ny2 / len2, vz = nz2 / len2;
 
-	// Parse JSON result
-	QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
-	if (!doc.isObject())
-	{
-		ccLog::Error(QString("Failed to parse Python output: %1").arg(output.left(200)));
-		return;
-	}
+		double dot = ux * vx + uy * vy + uz * vz;
 
-	QJsonObject obj = doc.object();
-	if (obj.contains("error"))
-	{
-		ccLog::Error(QString("Rotation Matrix computation failed: %1").arg(obj["error"].toString()));
-		return;
-	}
+		if (dot > 1.0 - 1e-10)
+		{
+			// Vectors are (nearly) identical → identity matrix
+			R[0][0] = 1; R[0][1] = 0; R[0][2] = 0;
+			R[1][0] = 0; R[1][1] = 1; R[1][2] = 0;
+			R[2][0] = 0; R[2][1] = 0; R[2][2] = 1;
+		}
+		else if (dot < -1.0 + 1e-10)
+		{
+			// Vectors are (nearly) opposite → 180° rotation about any perpendicular axis
+			// Find a perpendicular axis using cross product with (1,0,0) or (0,1,0)
+			double ax = 0, ay = 1, az = 0;
+			if (std::abs(ux) > 0.9 && std::abs(uy) < 0.1)
+			{
+				ax = 0; ay = 0; az = 1; // use Z axis if X is dominant
+			}
+			// ax, ay, az is already perpendicular to (ux, uy, uz)
+			// 180° rotation about (ax, ay, az): R = 2*a⊗a - I
+			R[0][0] = 2 * ax * ax - 1; R[0][1] = 2 * ax * ay;     R[0][2] = 2 * ax * az;
+			R[1][0] = 2 * ay * ax;     R[1][1] = 2 * ay * ay - 1; R[1][2] = 2 * ay * az;
+			R[2][0] = 2 * az * ax;     R[2][1] = 2 * az * ay;     R[2][2] = 2 * az * az - 1;
+		}
+		else
+		{
+			// General case: Rodrigues' rotation formula
+			// axis = v1 × v2 (normalized), angle = acos(v1 · v2)
+			double cx = uy * vz - uz * vy;
+			double cy = uz * vx - ux * vz;
+			double cz = ux * vy - uy * vx;
+			double cLen = std::sqrt(cx * cx + cy * cy + cz * cz);
+			cx /= cLen; cy /= cLen; cz /= cLen;
 
-	QJsonArray R = obj["rotation_matrix"].toArray();
-	double error = obj["verification_error"].toDouble();
+			double angle = std::acos(dot);
+			double s = std::sin(angle);
+			double c = std::cos(angle);
+			double t = 1.0 - c;
+
+			// R = t*a⊗a + c*I + s*[a]x
+			R[0][0] = t * cx * cx + c;          R[0][1] = t * cx * cy - s * cz;  R[0][2] = t * cx * cz + s * cy;
+			R[1][0] = t * cy * cx + s * cz;     R[1][1] = t * cy * cy + c;        R[1][2] = t * cy * cz - s * cx;
+			R[2][0] = t * cz * cx - s * cy;     R[2][1] = t * cz * cy + s * cx;   R[2][2] = t * cz * cz + c;
+		}
+
+		// Verification: ||R*v1 - v2||
+		double rv1x = R[0][0] * ux + R[0][1] * uy + R[0][2] * uz;
+		double rv1y = R[1][0] * ux + R[1][1] * uy + R[1][2] * uz;
+		double rv1z = R[2][0] * ux + R[2][1] * uy + R[2][2] * uz;
+		double ex = rv1x - vx, ey = rv1y - vy, ez = rv1z - vz;
+		error = std::sqrt(ex * ex + ey * ey + ez * ez);
+	}
 
 	// Format the matrix
 	QString matrixStr;
 	for (int row = 0; row < 3; ++row)
 	{
-		QJsonArray rowArr = R[row].toArray();
 		matrixStr += QString("| %1  %2  %3 |\n")
-			.arg(rowArr[0].toDouble(), 10, 'f', 6)
-			.arg(rowArr[1].toDouble(), 10, 'f', 6)
-			.arg(rowArr[2].toDouble(), 10, 'f', 6);
+			.arg(R[row][0], 10, 'f', 6)
+			.arg(R[row][1], 10, 'f', 6)
+			.arg(R[row][2], 10, 'f', 6);
 	}
 
 	QString msg = QString(
