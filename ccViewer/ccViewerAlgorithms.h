@@ -11,6 +11,7 @@
 #include <CCGeom.h>
 
 class ccPointCloud;
+namespace CCCoreLib { class GenericProgressCallback; }
 
 // ---------------------------------------------------------------------------
 // Tool 1: Boundary Point Extract  (boundary_extract2.m)
@@ -25,7 +26,8 @@ class ccPointCloud;
 // @return                    Newly-allocated cloud containing boundary points,
 //                            or nullptr on error. Caller takes ownership.
 //
-ccPointCloud* boundaryExtract(ccPointCloud* cloud, int K, double angleThresholdDeg);
+ccPointCloud* boundaryExtract(ccPointCloud* cloud, int K, double angleThresholdDeg,
+                              CCCoreLib::GenericProgressCallback* progress = nullptr);
 
 // ---------------------------------------------------------------------------
 // Tool 2: Fold Point Extract  (fold_extract_four2.m)
@@ -42,7 +44,8 @@ ccPointCloud* boundaryExtract(ccPointCloud* cloud, int K, double angleThresholdD
 //                            or nullptr on error. Caller takes ownership.
 //
 ccPointCloud* foldExtract(ccPointCloud* cloud, double radius,
-                          double PL_threshold, double DP_DS, int rank_dis_threshold);
+                          double PL_threshold, double DP_DS, int rank_dis_threshold,
+                          CCCoreLib::GenericProgressCallback* progress = nullptr);
 
 // ---------------------------------------------------------------------------
 // Tool 3: Sphere Neighborhood  (sphere_points.m)
@@ -60,7 +63,8 @@ ccPointCloud* foldExtract(ccPointCloud* cloud, double radius,
 ccPointCloud* sphereNeighborhoodExtract(ccPointCloud* cloud, double radius,
                                         int queryPointIndex,
                                         unsigned& outCount, double& outAvgDist,
-                                        double& outMinDist, double& outMaxDist);
+                                        double& outMinDist, double& outMaxDist,
+                                        CCCoreLib::GenericProgressCallback* progress = nullptr);
 
 // ---------------------------------------------------------------------------
 // Tool 4: Sphere PCA  (sphere_PCA.m)
@@ -72,4 +76,5 @@ ccPointCloud* sphereNeighborhoodExtract(ccPointCloud* cloud, double radius,
 // @param  radius  Sphere neighborhood radius
 // @return         true on success, false on error
 //
-bool spherePCACompute(ccPointCloud* cloud, double radius);
+bool spherePCACompute(ccPointCloud* cloud, double radius,
+                      CCCoreLib::GenericProgressCallback* progress = nullptr);

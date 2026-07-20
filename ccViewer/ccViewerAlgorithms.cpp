@@ -254,7 +254,8 @@ bool rotationFromTwoNormals(const CCVector3& n1, const CCVector3& n2, double R[9
 // ============================================================================
 // Tool 1: Boundary Point Extract
 // ============================================================================
-ccPointCloud* boundaryExtract(ccPointCloud* cloud, int K, double angleThresholdDeg)
+ccPointCloud* boundaryExtract(ccPointCloud* cloud, int K, double angleThresholdDeg,
+                              CCCoreLib::GenericProgressCallback* progress)
 {
     if (!cloud || cloud->size() < static_cast<unsigned>(K + 2))
         return nullptr;
@@ -262,9 +263,10 @@ ccPointCloud* boundaryExtract(ccPointCloud* cloud, int K, double angleThresholdD
     unsigned n = cloud->size();
     if (K < 3) K = 3;
 
-    // Build octree
+    // Build octree with progress
     CCCoreLib::DgmOctree octree(cloud);
-    octree.build(nullptr);
+    CCCoreLib::NormalizedProgress buildProg(progress, 2, 100); // 1 for build, 1 for search
+    octree.build(progress);
 
     // Find octree level for KNN
     CCVector3 diag = octree.getOctreeMaxs() - octree.getOctreeMins();
@@ -277,11 +279,17 @@ ccPointCloud* boundaryExtract(ccPointCloud* cloud, int K, double angleThresholdD
     std::vector<bool> isBoundary(n, false);
     double angleThresholdRad = angleThresholdDeg * M_PI / 180.0;
 
+    CCCoreLib::NormalizedProgress nProg(progress, n, 100);
+
+    // Reuse ReferenceCloud across iterations to avoid repeated allocation
+    CCCoreLib::ReferenceCloud refCloud(cloud);
+    unsigned maxNN = static_cast<unsigned>(K + 1);
+    refCloud.reserve(maxNN);
+
     for (unsigned i = 0; i < n; ++i)
     {
-        // Get K+1 nearest neighbors (K neighbors + self)
-        CCCoreLib::ReferenceCloud refCloud(cloud);
-        unsigned maxNN = static_cast<unsigned>(K + 1);
+        // Get K+1 nearest neighbors (K neighbors + self) — reuse refCloud
+        refCloud.clear();
         double maxSquareDist = 0;
 
         const CCVector3* queryPt = cloud->getPoint(i);
@@ -369,6 +377,9 @@ ccPointCloud* boundaryExtract(ccPointCloud* cloud, int K, double angleThresholdD
 
         if (maxGap > angleThresholdRad)
             isBoundary[i] = true;
+
+        if (!nProg.oneStep())
+            break;
     }
 
     // Build output cloud
@@ -407,7 +418,8 @@ ccPointCloud* boundaryExtract(ccPointCloud* cloud, int K, double angleThresholdD
 // Tool 2: Fold Point Extract
 // ============================================================================
 ccPointCloud* foldExtract(ccPointCloud* cloud, double radius,
-                          double PL_threshold, double DP_DS, int rank_dis_threshold)
+                          double PL_threshold, double DP_DS, int rank_dis_threshold,
+                          CCCoreLib::GenericProgressCallback* progress)
 {
     if (!cloud || cloud->size() < 5)
         return nullptr;
@@ -415,23 +427,36 @@ ccPointCloud* foldExtract(ccPointCloud* cloud, double radius,
     unsigned n = cloud->size();
     if (rank_dis_threshold < 1) rank_dis_threshold = 3;
 
-    // Build octree
+    // Build octree with progress
     CCCoreLib::DgmOctree octree(cloud);
-    octree.build(nullptr);
+    CCCoreLib::NormalizedProgress buildProg(progress, 2, 100);
+    octree.build(progress);
 
     unsigned char level = octree.findBestLevelForAGivenNeighbourhoodSizeExtraction(
         static_cast<PointCoordinateType>(radius));
 
-    // Precompute sphere neighborhoods for all points
+    // Precompute sphere neighborhoods for all points (50% of progress)
+    // Reuse NeighboursSet across iterations
+    CCCoreLib::DgmOctree::NeighboursSet neighbours;
     std::vector<std::vector<unsigned>> allNeighbors(n);
+    CCCoreLib::NormalizedProgress nProg(progress, n, 100);
     for (unsigned i = 0; i < n; ++i)
     {
-        allNeighbors[i] = sphereNeighbors(&octree, cloud, i, radius, level);
+        neighbours.clear();
+        const CCVector3& center = *cloud->getPoint(i);
+        octree.getPointsInSphericalNeighbourhood(
+            center, static_cast<PointCoordinateType>(radius), neighbours, level);
+        allNeighbors[i].reserve(neighbours.size());
+        for (const auto& nb : neighbours)
+            allNeighbors[i].push_back(nb.pointIndex);
+
+        if (!nProg.oneStep())
+            return nullptr;
     }
 
     // Detect fold points
     std::set<unsigned> foldSet;
-
+    CCCoreLib::NormalizedProgress nProg2(progress, n, 100);
     for (unsigned i = 0; i < n; ++i)
     {
         const auto& neighborIdx = allNeighbors[i];
@@ -553,6 +578,9 @@ ccPointCloud* foldExtract(ccPointCloud* cloud, double radius,
                     foldSet.insert(neighborIdx[j]);
             }
         }
+
+        if (!nProg2.oneStep())
+            break;
     }
 
     // Build output cloud
@@ -583,7 +611,8 @@ ccPointCloud* foldExtract(ccPointCloud* cloud, double radius,
 ccPointCloud* sphereNeighborhoodExtract(ccPointCloud* cloud, double radius,
                                         int queryPointIndex,
                                         unsigned& outCount, double& outAvgDist,
-                                        double& outMinDist, double& outMaxDist)
+                                        double& outMinDist, double& outMaxDist,
+                                        CCCoreLib::GenericProgressCallback* progress)
 {
     outCount = 0;
     outAvgDist = 0.0;
@@ -649,14 +678,23 @@ ccPointCloud* sphereNeighborhoodExtract(ccPointCloud* cloud, double radius,
         outCount = 0;
         double sumD = 0, minD = 1e300, maxD = 0;
 
-        for (unsigned i = 0; i < cloud->size(); ++i)
+        unsigned totalPts = cloud->size();
+        CCCoreLib::NormalizedProgress nProg(progress, totalPts, 100);
+        CCCoreLib::DgmOctree::NeighboursSet neighbours;
+        for (unsigned i = 0; i < totalPts; ++i)
         {
-            auto neighbors = sphereNeighbors(&octree, cloud, i, radius, level);
-            unsigned nc = static_cast<unsigned>(neighbors.size());
+            // Direct octree query — avoids sphereNeighbors() intermediate allocation
+            neighbours.clear();
+            const CCVector3& center = *cloud->getPoint(i);
+            octree.getPointsInSphericalNeighbourhood(
+                center, static_cast<PointCoordinateType>(radius), neighbours, level);
+            unsigned nc = static_cast<unsigned>(neighbours.size());
             outCount += nc;
             if (nc < minD) minD = static_cast<double>(nc);
             if (nc > maxD) maxD = static_cast<double>(nc);
             sumD += static_cast<double>(nc);
+            if (!nProg.oneStep())
+                break;
         }
 
         outAvgDist = sumD / cloud->size();
@@ -669,16 +707,18 @@ ccPointCloud* sphereNeighborhoodExtract(ccPointCloud* cloud, double radius,
 // ============================================================================
 // Tool 4: Sphere PCA
 // ============================================================================
-bool spherePCACompute(ccPointCloud* cloud, double radius)
+bool spherePCACompute(ccPointCloud* cloud, double radius,
+                      CCCoreLib::GenericProgressCallback* progress)
 {
     if (!cloud || cloud->size() < 3 || radius <= 0.0)
         return false;
 
     unsigned n = cloud->size();
 
-    // Build octree
+    // Build octree with progress
     CCCoreLib::DgmOctree octree(cloud);
-    octree.build(nullptr);
+    CCCoreLib::NormalizedProgress buildProg(progress, 2, 100);
+    octree.build(progress);
 
     unsigned char level = octree.findBestLevelForAGivenNeighbourhoodSizeExtraction(
         static_cast<PointCoordinateType>(radius));
@@ -711,18 +751,34 @@ bool spherePCACompute(ccPointCloud* cloud, double radius)
     sfNy->resizeSafe(n);
     sfNz->resizeSafe(n);
 
+    // Reuse NeighboursSet across iterations to avoid repeated allocation
+    CCCoreLib::DgmOctree::NeighboursSet neighbours;
+    std::vector<unsigned> neighborIndices;
+    neighborIndices.reserve(200);
+
+    CCCoreLib::NormalizedProgress nProg(progress, n, 100);
     for (unsigned i = 0; i < n; ++i)
     {
-        auto neighbors = sphereNeighbors(&octree, cloud, i, radius, level);
+        // Direct octree query — avoids sphereNeighbors() intermediate allocation
+        neighbours.clear();
+        const CCVector3& center = *cloud->getPoint(i);
+        int count = octree.getPointsInSphericalNeighbourhood(
+            center, static_cast<PointCoordinateType>(radius), neighbours, level);
+        neighborIndices.clear();
+        neighborIndices.reserve(count);
+        for (const auto& nb : neighbours)
+            neighborIndices.push_back(nb.pointIndex);
 
-        if (neighbors.size() >= 5)
+        if (neighborIndices.size() >= 5)
         {
             CCVector3 maxDir, centroid;
-            if (computeMaxEigenDirection(cloud, neighbors, maxDir, centroid))
+            if (computeMaxEigenDirection(cloud, neighborIndices, maxDir, centroid))
             {
                 sfNx->setValue(i, static_cast<ScalarType>(maxDir.x));
                 sfNy->setValue(i, static_cast<ScalarType>(maxDir.y));
                 sfNz->setValue(i, static_cast<ScalarType>(maxDir.z));
+                if (!nProg.oneStep())
+                    break;
                 continue;
             }
         }
@@ -731,6 +787,9 @@ bool spherePCACompute(ccPointCloud* cloud, double radius)
         sfNx->setValue(i, 0.0);
         sfNy->setValue(i, 0.0);
         sfNz->setValue(i, 0.0);
+
+        if (!nProg.oneStep())
+            break;
     }
 
     sfNx->computeMinAndMax();

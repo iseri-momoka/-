@@ -77,10 +77,11 @@
 #include <QLabel>
 #include <QPushButton>
 
-// CCCoreLib (for native algorithms: TLS plane fitting, KNN)
+// CCCoreLib (for native algorithms: TLS plane fitting, KNN, progress)
 #include <DgmOctree.h>
 #include <Neighbourhood.h>
 #include <ReferenceCloud.h>
+#include <GenericProgressCallback.h>
 
 // Camera parameters dialog
 static ccCameraParamEditDlg* s_cpeDlg = nullptr;
@@ -1535,6 +1536,10 @@ void ccViewer::doActionPointProjection()
 		else
 		{
 			unsigned n = cloud->size();
+			ccProgressDialog progressDlg(false, this);
+			progressDlg.setMethodTitle(tr("Point Projection"));
+			progressDlg.setInfo(tr("Projecting points onto plane..."));
+			CCCoreLib::NormalizedProgress nProg(&progressDlg, n, 100);
 			for (unsigned i = 0; i < n; ++i)
 			{
 				const CCVector3* P = cloud->getPoint(i);
@@ -1544,6 +1549,8 @@ void ccViewer::doActionPointProjection()
 					static_cast<PointCoordinateType>(P->y - t * B),
 					static_cast<PointCoordinateType>(P->z - t * C));
 				projectedCloud->addPoint(projected);
+				if (!nProg.oneStep())
+					break;
 			}
 
 			// Copy colors from original
@@ -1628,6 +1635,11 @@ void ccViewer::doActionKNNSearch()
 	double maxNearest = 0.0;
 	unsigned validCount = 0;
 
+	ccProgressDialog progressDlg(false, this);
+	progressDlg.setMethodTitle(tr("KNN Search"));
+	progressDlg.setInfo(tr("Computing nearest-neighbor distances..."));
+	CCCoreLib::NormalizedProgress nProg(&progressDlg, n, 100);
+
 	for (unsigned i = 0; i < n; ++i)
 	{
 		CCCoreLib::ReferenceCloud refCloud(cloud);
@@ -1659,6 +1671,9 @@ void ccViewer::doActionKNNSearch()
 				maxNearest = nearestDist;
 			++validCount;
 		}
+
+		if (!nProg.oneStep())
+			break;
 	}
 
 	double meanDist = (validCount > 0) ? (sumNearest / validCount) : 0.0;
@@ -1892,8 +1907,11 @@ void ccViewer::doActionBoundaryExtract()
 	int K = spinK->value();
 	double angleThreshold = spinAngle->value();
 
-	// Run algorithm
-	ccPointCloud* result = boundaryExtract(cloud, K, angleThreshold);
+	// Run algorithm with progress
+	ccProgressDialog progressDlg(false, this);
+	progressDlg.setMethodTitle(tr("Boundary Point Extract"));
+	progressDlg.setInfo(tr("Detecting boundary points..."));
+	ccPointCloud* result = boundaryExtract(cloud, K, angleThreshold, &progressDlg);
 	if (!result)
 	{
 		ccLog::Error("Boundary extract failed or no boundary points found");
@@ -1979,8 +1997,11 @@ void ccViewer::doActionFoldExtract()
 	double DP_DS = spinDPDS->value();
 	int rank_dis_threshold = spinRank->value();
 
-	// Run algorithm
-	ccPointCloud* result = foldExtract(cloud, radius, PL_threshold, DP_DS, rank_dis_threshold);
+	// Run algorithm with progress
+	ccProgressDialog progressDlg(false, this);
+	progressDlg.setMethodTitle(tr("Fold Point Extract"));
+	progressDlg.setInfo(tr("Detecting fold/crease points..."));
+	ccPointCloud* result = foldExtract(cloud, radius, PL_threshold, DP_DS, rank_dis_threshold, &progressDlg);
 	if (!result)
 	{
 		ccLog::Error("Fold extract failed or no fold points found");
@@ -2063,8 +2084,13 @@ void ccViewer::doActionSphereNeighborhood()
 	unsigned count = 0;
 	double avgDist = 0.0, minDist = 0.0, maxDist = 0.0;
 
+	// Run algorithm with progress
+	ccProgressDialog progressDlg(false, this);
+	progressDlg.setMethodTitle(tr("Sphere Neighborhood"));
+	progressDlg.setInfo(allPoints ? tr("Computing neighborhood statistics for all points...")
+	                              : tr("Extracting neighborhood..."));
 	ccPointCloud* result = sphereNeighborhoodExtract(cloud, radius, queryIdx,
-	                                                  count, avgDist, minDist, maxDist);
+	                                                  count, avgDist, minDist, maxDist, &progressDlg);
 
 	if (result)
 	{
@@ -2147,8 +2173,11 @@ void ccViewer::doActionSpherePCA()
 
 	double radius = spinRadius->value();
 
-	// Run algorithm
-	if (!spherePCACompute(cloud, radius))
+	// Run algorithm with progress
+	ccProgressDialog progressDlg(false, this);
+	progressDlg.setMethodTitle(tr("Sphere PCA"));
+	progressDlg.setInfo(tr("Computing per-point PCA normals..."));
+	if (!spherePCACompute(cloud, radius, &progressDlg))
 	{
 		ccLog::Error("Sphere PCA computation failed");
 		return;
