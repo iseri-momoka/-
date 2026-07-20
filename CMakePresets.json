@@ -1,0 +1,43 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "slim",
+      "displayName": "Slim Build (精简版)",
+      "description": "仅保留 3D浏览 + 核心I/O(CSV/BIN/PLY/OBJ/STL/LAS) + 基本点云处理",
+      "generator": "Visual Studio 18 2026",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "OPTION_BUILD_CCVIEWER": "ON",
+        "OPTION_MP_BUILD": "ON",
+        "PLUGIN_IO_QCORE": "ON",
+        "PLUGIN_IO_QLAS": "ON",
+        "OPTION_USE_DXF_LIB": "OFF",
+        "OPTION_USE_SHAPE_LIB": "OFF"
+      }
+    },
+    {
+      "name": "slim-debug",
+      "displayName": "Slim Debug Build (调试版)",
+      "description": "调试版本，包含符号信息和调试宏",
+      "generator": "Visual Studio 18 2026",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "OPTION_BUILD_CCVIEWER": "ON",
+        "OPTION_MP_BUILD": "ON",
+        "PLUGIN_IO_QCORE": "ON",
+        "PLUGIN_IO_QLAS": "ON",
+        "OPTION_USE_DXF_LIB": "OFF",
+        "OPTION_USE_SHAPE_LIB": "OFF"
+      }
+    }
+  ]
+}

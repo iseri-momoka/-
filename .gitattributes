@@ -1,0 +1,73 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# C++ files
+*.cpp text diff=cpp
+*.h text diff=cpp
+*.hpp text diff=cpp
+*.cc text diff=cpp
+*.cxx text diff=cpp
+
+# C files
+*.c text diff=c
+*.h text diff=c
+
+# CMake files
+CMakeLists.txt text
+*.cmake text
+
+# Qt files
+*.ui text
+*.qrc text
+
+# Python files
+*.py text diff=python
+
+# JSON files
+*.json text
+
+# Markdown files
+*.md text
+
+# YAML files
+*.yml text
+*.yaml text
+
+# Batch files (Windows)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Shell scripts (Unix)
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Resource files (Windows)
+*.rc text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.bmp binary
+*.svg text
+
+# Compiled files
+*.dll binary
+*.exe binary
+*.lib binary
+*.pdb binary
+*.obj binary
+*.o binary
+
+# Archives
+*.zip binary
+*.tar.gz binary
+*.7z binary
+
+# Qt generated files
+*.moc text
+moc_*.cpp text
+ui_*.h text
+qrc_*.cpp text

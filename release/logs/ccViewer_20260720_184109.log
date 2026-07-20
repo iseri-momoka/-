@@ -1,0 +1,50 @@
+=== ccViewer Log Started: 2026-07-20 18:41:09 ===
+2026-07-20 18:41:09 [S] [3D View 1] Graphics card manufacturer: NVIDIA Corporation
+2026-07-20 18:41:09 [S] [3D View 1] Renderer: NVIDIA GeForce RTX 4070 Laptop GPU/PCIe/SSE2
+2026-07-20 18:41:09 [S] [3D View 1] GL version: 4.6.0 NVIDIA 610.74
+2026-07-20 18:41:09 [S] [3D View 1] GLSL Version: 4.60 NVIDIA
+2026-07-20 18:41:09 [S] [3D View 1] FBO available
+2026-07-20 18:41:09 [S] [3D View 1] VBOs available
+2026-07-20 18:41:09 [S] [3D View 1] Shaders available
+2026-07-20 18:41:09 [S] [3D View 1] GL filters available
+2026-07-20 18:41:09 [W] [3D View 1] Failed to load color ramp shader: ''
+2026-07-20 18:41:09 [S] [3D View 1] Stereo mode: not supported
+2026-07-20 18:41:09 [S] [ccGLWindow] 3D view initialized
+2026-07-20 18:41:09 [S] [ccGLWindow] Succesfully initialized PBO for faster depth picking
+2026-07-20 18:41:09 [W] [ccGLWindowInterface::displayNewMessage] Append is not supported for center screen messages!
+2026-07-20 18:41:24 [W] [LAS] Cloud has been re-centered! Translation: (-235000.00 ; -3306000.00 ; 0.00)
+2026-07-20 18:41:39 [S] [LAS] File loaded in 0m15s460ms
+2026-07-20 18:41:39 [S] [I/O] File 'C:/Users/30386/Desktop/湖北科技学院（咸安校区）全域数据_彩色点云.las' loaded successfully
+2026-07-20 18:41:40 [S] [LoD] Preparing LoD acceleration structure for cloud '湖北科技学院（咸安校区）全域数据_彩色点云.las' [130465826 points]...
+2026-07-20 18:41:47 [S] [LoD] Level 0: 1 cells
+2026-07-20 18:41:48 [S] [LoD] Level 1: 8 cells
+2026-07-20 18:41:50 [S] [LoD] Level 2: 24 cells
+2026-07-20 18:41:51 [S] [LoD] Level 3: 74 cells
+2026-07-20 18:41:52 [S] [LoD] Level 4: 227 cells
+2026-07-20 18:41:54 [S] [LoD] Level 5: 713 cells
+2026-07-20 18:41:55 [S] [LoD] Level 6: 3988 cells
+2026-07-20 18:41:56 [S] [LoD] Level 7: 18436 cells
+2026-07-20 18:41:57 [S] [LoD] Level 8: 84502 cells
+2026-07-20 18:41:58 [S] [LoD] Level 9: 335053 cells
+2026-07-20 18:41:59 [S] [LoD] Level 10: 833657 cells
+2026-07-20 18:41:59 [S] [LoD] Level 11: 641953 cells
+2026-07-20 18:41:59 [S] [LoD] Level 12: 22690 cells
+2026-07-20 18:41:59 [S] [LoD] Level 13: 549 cells
+2026-07-20 18:41:59 [S] [LoD] Level 14: 314 cells
+2026-07-20 18:41:59 [S] [LoD] Level 15: 263 cells
+2026-07-20 18:41:59 [S] [LoD] Level 16: 277 cells
+2026-07-20 18:41:59 [S] [LoD] Level 17: 151 cells
+2026-07-20 18:41:59 [S] [LoD] Level 18: 15 cells
+2026-07-20 18:41:59 [S] [LoD] Level 19: 15 cells
+2026-07-20 18:41:59 [S] [LoD] Level 20: 15 cells
+2026-07-20 18:41:59 [S] [LoD][pass 2] Level 1: 8 cells (+0)
+2026-07-20 18:41:59 [S] [LoD][pass 2] Level 2: 24 cells (+0)
+2026-07-20 18:41:59 [S] [LoD][pass 2] Level 3: 74 cells (+0)
+2026-07-20 18:41:59 [S] [LoD][pass 2] Level 4: 228 cells (+1)
+2026-07-20 18:41:59 [S] [LoD][pass 2] Level 5: 722 cells (+9)
+2026-07-20 18:41:59 [S] [LoD][pass 2] Level 6: 4019 cells (+31)
+2026-07-20 18:41:59 [S] [LoD][pass 2] Level 7: 18804 cells (+368)
+2026-07-20 18:41:59 [S] [LoD][pass 2] Level 8: 88045 cells (+3543)
+2026-07-20 18:41:59 [S] [LoD][pass 2] Level 9: 392671 cells (+57618)
+2026-07-20 18:42:00 [S] [LoD][pass 2] Level 10: 1558809 cells (+725152)
+2026-07-20 18:42:00 [S] [LoD] Acceleration structure ready for cloud '湖北科技学院（咸安校区）全域数据_彩色点云.las' (max level: 20 / mem. = 166.60 Mb / duration: 20.2 s.)

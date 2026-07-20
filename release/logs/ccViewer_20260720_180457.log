@@ -1,0 +1,18 @@
+=== ccViewer Log Started: 2026-07-20 18:04:57 ===
+2026-07-20 18:04:57 [S] [3D View 1] Graphics card manufacturer: Intel
+2026-07-20 18:04:57 [S] [3D View 1] Renderer: Intel(R) UHD Graphics 770
+2026-07-20 18:04:57 [S] [3D View 1] GL version: 4.6.0 - Build 32.0.101.6556
+2026-07-20 18:04:57 [S] [3D View 1] GLSL Version: 4.60 - Build 32.0.101.6556
+2026-07-20 18:04:57 [S] [3D View 1] FBO available
+2026-07-20 18:04:57 [S] [3D View 1] VBOs available
+2026-07-20 18:04:57 [S] [3D View 1] Shaders available
+2026-07-20 18:04:57 [S] [3D View 1] GL filters available
+2026-07-20 18:04:57 [W] [3D View 1] Failed to load color ramp shader: ''
+2026-07-20 18:04:57 [S] [3D View 1] Stereo mode: not supported
+2026-07-20 18:04:57 [S] [ccGLWindow] 3D view initialized
+2026-07-20 18:04:57 [S] [ccGLWindow] Succesfully initialized PBO for faster depth picking
+2026-07-20 18:04:58 [W] [ccGLWindowInterface::displayNewMessage] Append is not supported for center screen messages!
+2026-07-20 18:05:06 [S] [LAS] File loaded in 0m1s507ms
+2026-07-20 18:05:06 [S] [I/O] File 'C:/Users/30892/Documents/记者团/ccViewer-slim/ccViewer-slim-msvc/test.las' loaded successfully
+2026-07-20 18:05:23 [S] [Sphere PCA] Normals computed for 1241 points (radius=0.606916)
+=== ccViewer Log Ended: 2026-07-20 18:05:30 ===

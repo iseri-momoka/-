@@ -1,0 +1,77 @@
+================================================================================
+CloudCompare plugins/ 目录下全部插件说明表（共 34 个）
+================================================================================
+
+一、GL 滤镜插件（core/GL/）—— 2 个
+────────────────────────────────────────────────────────────────────────────────
+| 序号 | 目录名   | 插件名称     | 默认 | 功能说明                                                       |
+|------|----------|-------------|------|---------------------------------------------------------------|
+| 1    | qEDL     | EDL Shader  | OFF  | Eye-Dome Lighting 非真实感着色，加深点云边缘/凹处的深度感知       |
+| 2    | qSSAO    | SSAO Shader | OFF  | 屏幕空间环境光遮蔽，模拟全局光照软阴影，提升点云/网格真实感        |
+
+
+二、I/O 插件（core/IO/）—— 12 个
+────────────────────────────────────────────────────────────────────────────────
+| 序号 | 目录名          | 插件名称       | 默认 | 读写 | 支持格式                                                |
+|------|-----------------|---------------|------|------|--------------------------------------------------------|
+| 3    | qCoreIO         | Core I/O      | ON   | R/W  | OBJ, STL(ASCII/Bin), VTK, OFF, PTX(Leica), SBF(CC简易) |
+|      |                 |               |      |      | PDMS(AVEVA), MA(Maya导出), Geo-Mascaret, 高度剖面CSV    |
+| 4    | qAdditionalIO   | Additional I/O| OFF  | R/W  | Bundler(.out), .icm, .pn, .pov, .pv, .poly, .sx, .soi |
+| 5    | qCSVMatrixIO    | CSV Matrix IO | OFF  | R    | CSV矩阵 → 2.5D点云/网格                                 |
+| 6    | qDracoIO        | Draco         | OFF  | R/W  | Google Draco 压缩点云/网格 (.drc)                        |
+| 7    | qE57IO          | E57           | OFF  | R/W  | ASTM E57 LiDAR扫描数据                                  |
+| 8    | qFBXIO          | FBX           | OFF  | R/W  | Autodesk FBX 网格                                       |
+| 9    | qLASIO          | LAS I/O       | OFF  | R/W  | LAS/LAZ/COPC.LAZ (当前推荐，含全波形+COPC)                |
+| 10   | qLASFWFIO       | LAS FWF I/O   | OFF  | R/W  | LAS/LAZ 1.3/1.4 全波形 (已弃用，建议用qLASIO)             |
+| 11   | qPDALIO         | PDAL I/O      | OFF  | R/W  | LAS/LAZ via PDAL库 (已弃用，建议用qLASIO)                 |
+| 12   | qPhotoscanIO    | Photoscan I/O | OFF  | R    | Agisoft Photoscan/Metashape (.psz)                      |
+| 13   | qRDBIO          | RDB I/O       | OFF  | R    | Riegl RDB (.rdbx/.vxls/.ptch/.mtch)                     |
+| 14   | qStepCADImport  | STEP Import   | OFF  | R    | STEP CAD (.step/.stp), 需OpenCascade                    |
+
+
+三、Standard 标准插件（core/Standard/）—— 17 个
+────────────────────────────────────────────────────────────────────────────────
+| 序号 | 目录名          | 插件名称              | 默认 | 功能说明                                                    | 可选依赖       |
+|------|-----------------|----------------------|------|------------------------------------------------------------|---------------|
+| 15   | qAnimation      | Animation            | OFF  | 视图序列插值 → 图片帧/视频(FFmpeg)导出                        | FFmpeg        |
+| 16   | qBroom          | CEA Virtual Broom    | OFF  | 虚拟扫帚交互式刷除/精简点云                                   | 无            |
+| 17   | qCSF            | CSF Filter           | OFF  | 布料模拟滤波(Cloth Simulation)分离地面点(LiDAR)                | 无            |
+| 18   | qCanupo         | CANUPO               | OFF  | 机器学习二分类器(多尺度维度分析+SVM)，植被/地面分离              | dlib          |
+| 19   | qCloudLayers    | Cloud Layers         | OFF  | 点云标量场分层交互式可视化                                     | 无            |
+| 20   | qCompass        | Compass              | OFF  | 地质构造测量罗盘(产状/裂隙/厚度/应变)，露头点云分析              | 无            |
+| 21   | qCork           | Cork                 | OFF  | CSG布尔运算(并/交/差) on 三角网格，基于Cork库                  | Cork, MPIR    |
+| 22   | qFacets         | Facet/Fracture Detect| OFF  | 平面/断裂面检测(KD-tree融合/Fast Marching)，产状分类+赤平投影   | ShapeLib      |
+| 23   | qHPR            | Hidden Point Removal | OFF  | 隐藏点移除(HPR, Katz et al. 2007)，视点可见性分割               | Qhull         |
+| 24   | qHoughNormals   | Hough Normals        | OFF  | Hough变换法线估计(A. Boulch)，无结构点云法向计算                | Eigen         |
+| 25   | qM3C2           | M3C2 Distance        | OFF  | 多尺度模型间云比较(M3C2)，地形变化检测                          | 无            |
+| 26   | qMeshBoolean    | Mesh Boolean         | OFF  | 网格CSG布尔(并/交/差/XOR)，基于libIGL+CGAL                     | libIGL        |
+| 27   | qPCL            | PCL Wrapper          | OFF  | PCL桥接: 快速全局配准/法线估计/MLS平滑/PCD读写                  | PCL           |
+| 28   | qPCV            | PCV (ShadeVis)       | OFF  | 环境光遮蔽(PCV/ShadeVis)，射线半球遮挡计算                      | OpenGL        |
+| 29   | qPoissonRecon   | PoissonRecon         | OFF  | Poisson曲面重建v9，从有向点云生成水密网格                       | 无(库内置)     |
+| 30   | qRANSAC_SD      | RANSAC Shape Detect  | OFF  | Efficient RANSAC自动检测平面/球/圆柱/圆锥/圆环                  | 无(库内置)     |
+| 31   | qSRA            | Surface of Revolution| OFF  | 旋转曲面分析(径向偏差计算+2D展开图)，EDF工业检测                 | dxflib(可选)  |
+
+
+四、Example 示例插件（example/）—— 3 个
+────────────────────────────────────────────────────────────────────────────────
+| 序号 | 目录名           | 插件名称              | 默认 | 功能说明                                                       |
+|------|------------------|----------------------|------|---------------------------------------------------------------|
+| 32   | ExamplePlugin    | Example Std Plugin   | OFF  | Standard插件模板: 菜单/工具栏/控制台输出/选择响应                  |
+| 33   | ExampleGLPlugin  | Example GL Plugin    | OFF  | GL滤镜插件模板: 双边滤波 getFilter() 示范                         |
+| 34   | ExampleIOPlugin  | Example IO Plugin    | OFF  | I/O插件模板: FooFilter 注册/文件加载范例                          |
+
+
+================================================================================
+统计汇总
+================================================================================
+
+  分类         数量    默认ON    默认OFF
+  ─────────────────────────────────
+  GL Filter      2        0         2
+  I/O           12        1        11
+  Standard      17        0        17
+  Example        3        0         3
+  ─────────────────────────────────
+  总计          34        1        33
+
+================================================================================

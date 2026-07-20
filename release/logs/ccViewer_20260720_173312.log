@@ -1,0 +1,15 @@
+=== ccViewer Log Started: 2026-07-20 17:33:12 ===
+2026-07-20 17:33:12 [S] [3D View 1] Graphics card manufacturer: Intel
+2026-07-20 17:33:12 [S] [3D View 1] Renderer: Intel(R) UHD Graphics 770
+2026-07-20 17:33:12 [S] [3D View 1] GL version: 4.6.0 - Build 32.0.101.6556
+2026-07-20 17:33:12 [S] [3D View 1] GLSL Version: 4.60 - Build 32.0.101.6556
+2026-07-20 17:33:12 [S] [3D View 1] FBO available
+2026-07-20 17:33:12 [S] [3D View 1] VBOs available
+2026-07-20 17:33:12 [S] [3D View 1] Shaders available
+2026-07-20 17:33:12 [S] [3D View 1] GL filters available
+2026-07-20 17:33:12 [W] [3D View 1] Failed to load color ramp shader: ''
+2026-07-20 17:33:12 [S] [3D View 1] Stereo mode: not supported
+2026-07-20 17:33:12 [S] [ccGLWindow] 3D view initialized
+2026-07-20 17:33:12 [S] [ccGLWindow] Succesfully initialized PBO for faster depth picking
+2026-07-20 17:33:14 [S] [LAS] File loaded in 0m1s520ms
+2026-07-20 17:33:14 [S] [I/O] File '../test.las' loaded successfully
