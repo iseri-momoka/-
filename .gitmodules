@@ -1,0 +1,3 @@
+[submodule "libs/CCAppCommon/QDarkStyleSheet"]
+	path = libs/CCAppCommon/QDarkStyleSheet
+	url = https://github.com/SchrodingerHZhou/QDarkStyleSheet.git
